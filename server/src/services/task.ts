@@ -106,6 +106,12 @@ export class TaskService {
     if (updates.completed !== undefined) {
       updateFields.push('completed = ?');
       values.push(updates.completed ? 1 : 0);
+      
+      if (updates.completed) {
+        updateFields.push('completed_at = CURRENT_TIMESTAMP');
+      } else {
+        updateFields.push('completed_at = NULL');
+      }
     }
 
     if (updateFields.length === 0) {

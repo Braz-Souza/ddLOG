@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Task } from '@shared/types';
 
 interface TaskItemProps {
@@ -16,9 +16,18 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   onDelete,
   loading = false
 }) => {
+  const [isToggling, setIsToggling] = useState(false);
+
   const handleToggle = async () => {
-    if (loading) return;
-    await onToggle(task.id, !task.completed);
+    if (loading || isToggling) return;
+    
+    setIsToggling(true);
+    try {
+      await onToggle(task.id, !task.completed);
+    } finally {
+      // Keep the toggling state for a brief moment to show animation
+      setTimeout(() => setIsToggling(false), 300);
+    }
   };
 
   const handleEdit = () => {
@@ -51,23 +60,28 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
   return (
     <div className={`
-      bg-white rounded-lg border transition-all duration-200 hover:shadow-md
-      ${task.completed ? 'border-green-200 bg-green-50' : 'border-gray-200'}
+      bg-white rounded-lg border transition-all duration-300 hover:shadow-md
+      ${task.completed 
+        ? 'border-green-200 bg-gradient-to-r from-green-50 to-green-25 shadow-sm' 
+        : 'border-gray-200 hover:border-gray-300'
+      }
       ${loading ? 'opacity-60' : ''}
     `}>
       <div className="p-4">
         <div className="flex items-start gap-3">
           <button
             onClick={handleToggle}
-            disabled={loading}
+            disabled={loading || isToggling}
             className={`
               mt-1 w-5 h-5 rounded border-2 flex items-center justify-center
-              transition-colors duration-200 disabled:cursor-not-allowed
+              transition-all duration-300 disabled:cursor-not-allowed transform hover:scale-105
+              ${isToggling ? 'animate-pulse' : ''}
               ${task.completed 
-                ? 'bg-green-500 border-green-500 text-white' 
-                : 'border-gray-300 hover:border-primary-500'
+                ? 'bg-green-500 border-green-500 text-white shadow-md' 
+                : 'border-gray-300 hover:border-green-400 hover:bg-green-50'
               }
             `}
+            title={task.completed ? 'Marcar como pendente' : 'Marcar como concluída'}
           >
             {task.completed && (
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
