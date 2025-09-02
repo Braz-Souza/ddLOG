@@ -1,8 +1,10 @@
 export interface Task {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   completed: boolean;
+  reminderTime?: string;
+  category?: string;
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
@@ -16,12 +18,16 @@ export interface User {
 
 export interface TaskCreateRequest {
   name: string;
-  description: string;
+  description?: string;
+  reminderTime?: string;
+  category?: string;
 }
 
 export interface TaskUpdateRequest {
   name?: string;
   description?: string;
+  reminderTime?: string;
+  category?: string;
   completed?: boolean;
 }
 

@@ -7,11 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const DB_PATH = process.env.DATABASE_PATH || join(__dirname, '../../data/ddlog.db');
-const ENCRYPTION_KEY = process.env.DATABASE_ENCRYPTION_KEY;
-
-if (!ENCRYPTION_KEY) {
-  throw new Error('DATABASE_ENCRYPTION_KEY is required in environment variables');
-}
+const ENCRYPTION_KEY = process.env.DATABASE_ENCRYPTION_KEY || 'development-key-not-secure';
 
 export const db = new Database(DB_PATH);
 

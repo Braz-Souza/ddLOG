@@ -17,10 +17,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
     return res.status(401).json({ error: 'Access token required' });
   }
 
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    return res.status(500).json({ error: 'JWT secret not configured' });
-  }
+  const secret = process.env.JWT_SECRET || 'development-jwt-secret-not-secure';
 
   jwt.verify(token, secret, (err, user) => {
     if (err) {

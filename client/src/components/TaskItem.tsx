@@ -1,0 +1,166 @@
+import React from 'react';
+import type { Task } from '@shared/types';
+
+interface TaskItemProps {
+  task: Task;
+  onToggle: (id: string, completed: boolean) => Promise<void>;
+  onEdit?: (task: Task) => void;
+  onDelete?: (id: string) => Promise<void>;
+  loading?: boolean;
+}
+
+export const TaskItem: React.FC<TaskItemProps> = ({
+  task,
+  onToggle,
+  onEdit,
+  onDelete,
+  loading = false
+}) => {
+  const handleToggle = async () => {
+    if (loading) return;
+    await onToggle(task.id, !task.completed);
+  };
+
+  const handleEdit = () => {
+    if (loading || !onEdit) return;
+    onEdit(task);
+  };
+
+  const handleDelete = async () => {
+    if (loading || !onDelete) return;
+    
+    if (window.confirm('Tem certeza que deseja deletar esta tarefa?')) {
+      await onDelete(task.id);
+    }
+  };
+
+  const formatTime = (time: string) => {
+    if (!time) return '';
+    const [hours, minutes] = time.split(':');
+    return `${hours}:${minutes}`;
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  return (
+    <div className={`
+      bg-white rounded-lg border transition-all duration-200 hover:shadow-md
+      ${task.completed ? 'border-green-200 bg-green-50' : 'border-gray-200'}
+      ${loading ? 'opacity-60' : ''}
+    `}>
+      <div className="p-4">
+        <div className="flex items-start gap-3">
+          <button
+            onClick={handleToggle}
+            disabled={loading}
+            className={`
+              mt-1 w-5 h-5 rounded border-2 flex items-center justify-center
+              transition-colors duration-200 disabled:cursor-not-allowed
+              ${task.completed 
+                ? 'bg-green-500 border-green-500 text-white' 
+                : 'border-gray-300 hover:border-primary-500'
+              }
+            `}
+          >
+            {task.completed && (
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </button>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className={`
+                font-medium text-gray-900 leading-tight
+                ${task.completed ? 'line-through text-gray-600' : ''}
+              `}>
+                {task.name}
+              </h3>
+
+              <div className="flex items-center gap-1 ml-2">
+                {onEdit && (
+                  <button
+                    onClick={handleEdit}
+                    disabled={loading}
+                    className="p-1 text-gray-400 hover:text-primary-600 transition-colors disabled:cursor-not-allowed"
+                    title="Editar tarefa"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                )}
+
+                {onDelete && (
+                  <button
+                    onClick={handleDelete}
+                    disabled={loading}
+                    className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:cursor-not-allowed"
+                    title="Deletar tarefa"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {task.description && (
+              <p className={`
+                text-sm mt-1 text-gray-600 leading-relaxed
+                ${task.completed ? 'text-gray-500' : ''}
+              `}>
+                {task.description}
+              </p>
+            )}
+
+            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+              {task.category && (
+                <span className="inline-flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                  {task.category}
+                </span>
+              )}
+
+              {task.reminderTime && (
+                <span className="inline-flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {formatTime(task.reminderTime)}
+                </span>
+              )}
+
+              <span className="inline-flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {formatDate(task.createdAt)}
+              </span>
+
+              {task.completed && task.completedAt && (
+                <span className="inline-flex items-center gap-1 text-green-600">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Concluída em {formatDate(task.completedAt)}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

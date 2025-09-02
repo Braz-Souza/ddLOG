@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS tasks (
   user_id TEXT NOT NULL,
   name TEXT NOT NULL,
   description TEXT,
+  reminder_time TEXT,
+  category TEXT,
   completed BOOLEAN DEFAULT FALSE,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
