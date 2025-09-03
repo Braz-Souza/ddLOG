@@ -46,7 +46,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   const handleViewDetails = () => {
+    console.log('TaskItem handleViewDetails called', { loading, onViewDetails: !!onViewDetails, task });
     if (loading || !onViewDetails) return;
+    console.log('Calling onViewDetails with task:', task);
     onViewDetails(task);
   };
 

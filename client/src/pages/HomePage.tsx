@@ -4,11 +4,10 @@ import { TaskForm } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
 import { TaskDetailModal } from '../components/TaskDetailModal';
 import { useTasks } from '../hooks/useTasks';
-import type { TaskCreateRequest, Task } from '@shared/types';
+import type { TaskCreateRequest, Task, TaskUpdateRequest } from '@shared/types';
 
 export const HomePage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   
@@ -50,18 +49,46 @@ export const HomePage: React.FC = () => {
   };
 
   const handleEditTask = (task: Task) => {
-    setEditingTask(task);
-    // TODO: Implement edit modal/form
+    setSelectedTask(task);
+    setShowDetailModal(true);
   };
 
   const handleViewTaskDetails = (task: Task) => {
+    console.log('HomePage handleViewTaskDetails called with task:', task);
+    console.log('Before state update - selectedTask:', selectedTask, 'showDetailModal:', showDetailModal);
     setSelectedTask(task);
     setShowDetailModal(true);
+    console.log('State update called - should now show modal');
   };
 
   const handleCloseDetailModal = () => {
     setShowDetailModal(false);
     setSelectedTask(null);
+  };
+
+
+  const handleSaveTask = async (taskId: string, updates: TaskUpdateRequest) => {
+    try {
+      const updatedTask = await updateTask(taskId, updates);
+      if (updatedTask) {
+        toast.success('Tarefa atualizada com sucesso!');
+      }
+    } catch (error) {
+      toast.error('Erro ao atualizar tarefa');
+    }
+  };
+
+  const handleDeleteFromModal = async (taskId: string) => {
+    try {
+      const success = await deleteTask(taskId);
+      if (success) {
+        toast.success('Tarefa deletada com sucesso!');
+        setShowDetailModal(false);
+        setSelectedTask(null);
+      }
+    } catch (error) {
+      toast.error('Erro ao deletar tarefa');
+    }
   };
 
   const handleDeleteTask = async (id: string) => {
@@ -171,7 +198,11 @@ export const HomePage: React.FC = () => {
           task={selectedTask}
           isOpen={showDetailModal}
           onClose={handleCloseDetailModal}
+          onSave={handleSaveTask}
+          onDelete={handleDeleteFromModal}
+          loading={loading}
         />
+
       </div>
     </div>
   );
