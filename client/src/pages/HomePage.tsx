@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { TaskForm } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
 import { TaskDetailModal } from '../components/TaskDetailModal';
+import { TaskSummary } from '../components/TaskSummary';
 import { useTasks } from '../hooks/useTasks';
 import type { TaskCreateRequest, Task, TaskUpdateRequest } from '@shared/types';
 
@@ -151,6 +152,8 @@ export const HomePage: React.FC = () => {
               loading={loading}
             />
           )}
+
+          <TaskSummary tasks={tasks} />
 
           <TaskList
             tasks={tasks}

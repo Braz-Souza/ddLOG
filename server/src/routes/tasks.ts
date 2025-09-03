@@ -60,6 +60,29 @@ router.get('/today', async (req, res) => {
   }
 });
 
+router.get('/heatmap', async (req, res) => {
+  try {
+    const userId = TEMP_USER_ID;
+    const { startDate, endDate } = req.query;
+    
+    const heatmapData = await TaskService.getHeatmapData(
+      userId, 
+      startDate as string, 
+      endDate as string
+    );
+    
+    res.json({
+      success: true,
+      data: heatmapData
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to fetch heatmap data'
+    });
+  }
+});
+
 router.get('/:id', async (req, res) => {
   try {
     const userId = TEMP_USER_ID;

@@ -1,5 +1,5 @@
 import db from '../database/connection.js';
-import type { Task, TaskCreateRequest, TaskUpdateRequest } from '@shared/types';
+import type { Task, TaskCreateRequest, TaskUpdateRequest, HeatmapData } from '@shared/types';
 
 export class TaskService {
   static async createTask(userId: string, taskData: TaskCreateRequest): Promise<Task> {
@@ -145,5 +145,45 @@ export class TaskService {
   static async getTodayTasks(userId: string): Promise<Task[]> {
     const today = new Date().toISOString().split('T')[0];
     return this.getTasks(userId, today);
+  }
+
+  static async getHeatmapData(userId: string, startDate?: string, endDate?: string): Promise<HeatmapData[]> {
+    const now = new Date();
+    const defaultEndDate = now.toISOString().split('T')[0];
+    const defaultStartDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    const queryStartDate = startDate || defaultStartDate;
+    const queryEndDate = endDate || defaultEndDate;
+
+    const result = db.prepare(`
+      SELECT 
+        date(created_at) as date,
+        COUNT(*) as total_tasks,
+        SUM(CASE WHEN completed = 1 THEN 1 ELSE 0 END) as completed_tasks
+      FROM tasks 
+      WHERE user_id = ? 
+        AND date(created_at) >= ? 
+        AND date(created_at) <= ?
+      GROUP BY date(created_at)
+      ORDER BY date(created_at)
+    `).all(userId, queryStartDate, queryEndDate) as Array<{
+      date: string;
+      total_tasks: number;
+      completed_tasks: number;
+    }>;
+
+    return result.map(row => {
+      const percentage = row.total_tasks > 0 ? (row.completed_tasks / row.total_tasks) * 100 : 0;
+      const level = percentage === 0 ? 0 : 
+                  percentage <= 25 ? 1 :
+                  percentage <= 50 ? 2 :
+                  percentage <= 75 ? 3 : 4;
+
+      return {
+        date: row.date,
+        count: Math.round(percentage),
+        level
+      };
+    });
   }
 }
