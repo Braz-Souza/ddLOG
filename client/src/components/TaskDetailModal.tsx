@@ -100,7 +100,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   const watchedName = isEditing ? watch('name') : task.name;
 
-  const formatTime = (time: string | null) => {
+  const formatTime = (time: string | null | undefined) => {
     if (!time) return 'Não definido';
     const [hours, minutes] = time.split(':');
     return `${hours}:${minutes}`;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Task, TaskCreateRequest, TaskUpdateRequest, AuthRequest, AuthResponse } from '@shared/types';
+import type { Task, TaskCreateRequest, TaskUpdateRequest, AuthResponse, HeatmapData } from '@shared/types';
 
 const API_BASE = '/api';
 
@@ -88,6 +88,15 @@ export const taskApi = {
 
   delete: async (id: string): Promise<ApiResponse<{ message: string }>> => {
     const response = await api.delete(`/tasks/${id}`);
+    return response.data;
+  },
+
+  getHeatmapData: async (startDate?: string, endDate?: string): Promise<ApiResponse<HeatmapData[]>> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    
+    const response = await api.get(`/tasks/heatmap?${params.toString()}`);
     return response.data;
   },
 };

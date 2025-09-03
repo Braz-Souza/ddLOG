@@ -2,8 +2,10 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { authApi } from '../services/api';
 import type { User } from '@shared/types';
 
+type ClientUser = Omit<User, 'pinHash'>;
+
 interface AuthContextType {
-  user: User | null;
+  user: ClientUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -24,7 +26,7 @@ export const useAuth = () => {
 };
 
 export const useAuthState = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<ClientUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [needsSetup, setNeedsSetup] = useState(false);
