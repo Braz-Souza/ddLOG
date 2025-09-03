@@ -6,6 +6,7 @@ interface TaskItemProps {
   onToggle: (id: string, completed: boolean) => Promise<void>;
   onEdit?: (task: Task) => void;
   onDelete?: (id: string) => Promise<void>;
+  onViewDetails?: (task: Task) => void;
   loading?: boolean;
 }
 
@@ -14,6 +15,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
   onToggle,
   onEdit,
   onDelete,
+  onViewDetails,
   loading = false
 }) => {
   const [isToggling, setIsToggling] = useState(false);
@@ -41,6 +43,11 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     if (window.confirm('Tem certeza que deseja deletar esta tarefa?')) {
       await onDelete(task.id);
     }
+  };
+
+  const handleViewDetails = () => {
+    if (loading || !onViewDetails) return;
+    onViewDetails(task);
   };
 
   const formatTime = (time: string) => {
@@ -92,12 +99,30 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <h3 className={`
-                font-medium text-gray-900 leading-tight
-                ${task.completed ? 'line-through text-gray-600' : ''}
-              `}>
-                {task.name}
-              </h3>
+              <div 
+                onClick={handleViewDetails}
+                className={`
+                  flex-1 cursor-pointer hover:bg-gray-50 -mx-2 px-2 py-1 rounded transition-colors
+                  ${onViewDetails ? '' : 'cursor-default'}
+                `}
+                title={onViewDetails ? 'Clique para ver detalhes' : ''}
+              >
+                <h3 className={`
+                  font-medium text-gray-900 leading-tight
+                  ${task.completed ? 'line-through text-gray-600' : ''}
+                `}>
+                  {task.name}
+                </h3>
+                
+                {task.description && (
+                  <p className={`
+                    text-sm mt-1 text-gray-600 leading-relaxed truncate
+                    ${task.completed ? 'text-gray-500' : ''}
+                  `}>
+                    {task.description}
+                  </p>
+                )}
+              </div>
 
               <div className="flex items-center gap-1 ml-2">
                 {onEdit && (
@@ -127,15 +152,6 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                 )}
               </div>
             </div>
-
-            {task.description && (
-              <p className={`
-                text-sm mt-1 text-gray-600 leading-relaxed
-                ${task.completed ? 'text-gray-500' : ''}
-              `}>
-                {task.description}
-              </p>
-            )}
 
             <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
               {task.category && (

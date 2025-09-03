@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { TaskForm } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
+import { TaskDetailModal } from '../components/TaskDetailModal';
 import { useTasks } from '../hooks/useTasks';
 import type { TaskCreateRequest, Task } from '@shared/types';
 
 export const HomePage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   
   const {
     tasks,
@@ -49,6 +52,16 @@ export const HomePage: React.FC = () => {
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
     // TODO: Implement edit modal/form
+  };
+
+  const handleViewTaskDetails = (task: Task) => {
+    setSelectedTask(task);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setShowDetailModal(false);
+    setSelectedTask(null);
   };
 
   const handleDeleteTask = async (id: string) => {
@@ -117,6 +130,7 @@ export const HomePage: React.FC = () => {
             onToggleTask={handleToggleTask}
             onEditTask={handleEditTask}
             onDeleteTask={handleDeleteTask}
+            onViewDetails={handleViewTaskDetails}
             loading={loading}
             title="Tarefas de Hoje"
             emptyMessage="Nenhuma tarefa para hoje"
@@ -151,6 +165,13 @@ export const HomePage: React.FC = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
         </button>
+
+        {/* Task Detail Modal */}
+        <TaskDetailModal
+          task={selectedTask}
+          isOpen={showDetailModal}
+          onClose={handleCloseDetailModal}
+        />
       </div>
     </div>
   );

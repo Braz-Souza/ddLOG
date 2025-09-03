@@ -7,6 +7,7 @@ interface TaskListProps {
   onToggleTask: (id: string, completed: boolean) => Promise<void>;
   onEditTask?: (task: Task) => void;
   onDeleteTask?: (id: string) => Promise<void>;
+  onViewDetails?: (task: Task) => void;
   loading?: boolean;
   emptyMessage?: string;
   title?: string;
@@ -17,6 +18,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   onToggleTask,
   onEditTask,
   onDeleteTask,
+  onViewDetails,
   loading = false,
   emptyMessage = 'Nenhuma tarefa encontrada',
   title = 'Tarefas de Hoje'
@@ -111,6 +113,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                 onToggle={onToggleTask}
                 onEdit={onEditTask}
                 onDelete={onDeleteTask}
+                onViewDetails={onViewDetails}
                 loading={loading}
               />
             ))}
@@ -134,6 +137,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                 onToggle={onToggleTask}
                 onEdit={onEditTask}
                 onDelete={onDeleteTask}
+                onViewDetails={onViewDetails}
                 loading={loading}
               />
             ))}
