@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { TaskForm } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
+import { TaskListWithDates } from '../components/TaskListWithDates';
 import { TaskDetailModal } from '../components/TaskDetailModal';
 import { TaskSummary } from '../components/TaskSummary';
 import { useTasks } from '../hooks/useTasks';
+import { taskApi } from '../services/api';
 import type { TaskCreateRequest, Task, TaskUpdateRequest } from '@shared/types';
 
 export const HomePage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [recentTasks, setRecentTasks] = useState<Task[]>([]);
+  const [recentLoading, setRecentLoading] = useState(false);
   
   const {
     tasks,
@@ -21,6 +25,80 @@ export const HomePage: React.FC = () => {
     toggleTask,
     deleteTask
   } = useTasks();
+
+  const fetchRecentTasks = async () => {
+    try {
+      setRecentLoading(true);
+      
+      const tasksByDate: { [key: string]: Task[] } = {};
+      const today = new Date();
+      
+      for (let i = 1; i <= 7; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const response = await taskApi.getAll(dateStr);
+        if (response.success && response.data && response.data.length > 0) {
+          tasksByDate[dateStr] = response.data;
+        }
+      }
+      
+      // Convert to flat array with date markers
+      const flatTasks: Task[] = [];
+      const sortedDates = Object.keys(tasksByDate).sort((a, b) => b.localeCompare(a)); // Most recent first
+      
+      sortedDates.forEach(dateStr => {
+        const tasks = tasksByDate[dateStr];
+        // Add a date marker task
+        const dateMarker = {
+          id: `date-marker-${dateStr}`,
+          title: dateStr,
+          description: '',
+          completed: false,
+          createdAt: dateStr,
+          updatedAt: dateStr,
+          isDateMarker: true
+        } as Task & { isDateMarker: boolean };
+
+        flatTasks.push(dateMarker);
+        flatTasks.push(...tasks);
+      });
+      
+      setRecentTasks(flatTasks);
+    } catch (error) {
+      console.error('Error fetching recent tasks:', error);
+    } finally {
+      setRecentLoading(false);
+    }
+  };
+
+  const handleToggleRecentTask = async (id: string, completed: boolean) => {
+    // Don't try to toggle date markers
+    if (id.startsWith('date-marker-')) {
+      return;
+    }
+
+    try {
+      const response = await taskApi.patch(id, { completed });
+      if (response.success && response.data) {
+        setRecentTasks(prev => prev.map(task => 
+          task.id === id ? response.data! : task
+        ));
+        toast.success(
+          completed 
+            ? 'Tarefa marcada como concluída!' 
+            : 'Tarefa desmarcada!'
+        );
+      }
+    } catch (error) {
+      toast.error('Erro ao atualizar tarefa');
+    }
+  };
+
+  useEffect(() => {
+    fetchRecentTasks();
+  }, []);
 
   const handleCreateTask = async (taskData: TaskCreateRequest) => {
     try {
@@ -112,6 +190,11 @@ export const HomePage: React.FC = () => {
 
   const todayFormatted = today.charAt(0).toUpperCase() + today.slice(1);
 
+  // Sort today's tasks by creation date (ascending - oldest first)
+  const sortedTodayTasks = [...tasks].sort((a, b) => 
+    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -153,10 +236,10 @@ export const HomePage: React.FC = () => {
             />
           )}
 
-          <TaskSummary tasks={tasks} />
+          <TaskSummary tasks={sortedTodayTasks} />
 
           <TaskList
-            tasks={tasks}
+            tasks={sortedTodayTasks}
             onToggleTask={handleToggleTask}
             onEditTask={handleEditTask}
             onDeleteTask={handleDeleteTask}
@@ -165,6 +248,22 @@ export const HomePage: React.FC = () => {
             title="Tarefas de Hoje"
             emptyMessage="Nenhuma tarefa para hoje"
           />
+
+          {/* Seção de Últimas Concluídas */}
+          {recentTasks.length > 0 && (
+            <div className="mt-8">
+              <TaskListWithDates
+                tasks={recentTasks}
+                onToggleTask={handleToggleRecentTask}
+                onEditTask={handleEditTask}
+                onDeleteTask={() => Promise.resolve()}
+                onViewDetails={handleViewTaskDetails}
+                loading={recentLoading}
+                title="Últimas Concluídas (7 dias anteriores)"
+                emptyMessage="Nenhuma tarefa concluída nos últimos 7 dias"
+              />
+            </div>
+          )}
         </div>
 
         {tasks.length > 0 && (
