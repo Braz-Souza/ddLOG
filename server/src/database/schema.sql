@@ -2,6 +2,8 @@
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY DEFAULT (hex(randomblob(16))),
   pin_hash TEXT NOT NULL,
+  failed_attempts INTEGER DEFAULT 0,
+  locked_until DATETIME NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -54,3 +56,4 @@ CREATE TRIGGER IF NOT EXISTS clear_completed_at
   BEGIN
     UPDATE tasks SET completed_at = NULL WHERE id = NEW.id;
   END;
+

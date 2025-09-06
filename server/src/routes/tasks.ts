@@ -1,14 +1,16 @@
 import express from 'express';
 import { TaskService } from '../services/task.js';
 import { ExportService } from '../services/export.js';
-import { TEMP_USER_ID } from '../services/tempUser.js';
-// import { authenticateToken, type AuthRequest } from '../middleware/auth.js';
+import { authenticateToken, type AuthRequest } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+// Apply authentication middleware to all routes
+router.use(authenticateToken);
+
+router.post('/', async (req: AuthRequest, res) => {
   try {
-    const userId = TEMP_USER_ID;
+    const userId = req.user!.id;
     const taskData = req.body;
 
     const task = await TaskService.createTask(userId, taskData);
@@ -25,9 +27,9 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/', async (req, res) => {
+router.get('/', async (req: AuthRequest, res) => {
   try {
-    const userId = TEMP_USER_ID;
+    const userId = req.user!.id;
     const { date } = req.query;
     
     const tasks = await TaskService.getTasks(userId, date as string);
@@ -44,9 +46,9 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/today', async (req, res) => {
+router.get('/today', async (req: AuthRequest, res) => {
   try {
-    const userId = TEMP_USER_ID;
+    const userId = req.user!.id;
     const tasks = await TaskService.getTodayTasks(userId);
     
     res.json({
@@ -61,9 +63,9 @@ router.get('/today', async (req, res) => {
   }
 });
 
-router.get('/heatmap', async (req, res) => {
+router.get('/heatmap', async (req: AuthRequest, res) => {
   try {
-    const userId = TEMP_USER_ID;
+    const userId = req.user!.id;
     const { startDate, endDate } = req.query;
     
     const heatmapData = await TaskService.getHeatmapData(
@@ -84,9 +86,9 @@ router.get('/heatmap', async (req, res) => {
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: AuthRequest, res) => {
   try {
-    const userId = TEMP_USER_ID;
+    const userId = req.user!.id;
     const { id } = req.params;
     
     const task = await TaskService.getTaskById(userId, id);
@@ -110,9 +112,9 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req: AuthRequest, res) => {
   try {
-    const userId = TEMP_USER_ID;
+    const userId = req.user!.id;
     const { id } = req.params;
     const updates = req.body;
     
@@ -131,9 +133,9 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', async (req: AuthRequest, res) => {
   try {
-    const userId = TEMP_USER_ID;
+    const userId = req.user!.id;
     const { id } = req.params;
     const updates = req.body;
     
@@ -152,9 +154,9 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req: AuthRequest, res) => {
   try {
-    const userId = TEMP_USER_ID;
+    const userId = req.user!.id;
     const { id } = req.params;
     
     const deleted = await TaskService.deleteTask(userId, id);
@@ -178,9 +180,9 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-router.get('/export/:format', async (req, res) => {
+router.get('/export/:format', async (req: AuthRequest, res) => {
   try {
-    const userId = TEMP_USER_ID;
+    const userId = req.user!.id;
     const { format } = req.params;
     const { startDate, endDate } = req.query;
     

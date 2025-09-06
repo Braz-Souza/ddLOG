@@ -13,6 +13,8 @@ export interface Task {
 export interface User {
   id: string;
   pinHash: string;
+  failedAttempts: number;
+  lockedUntil?: string;
   createdAt: string;
 }
 

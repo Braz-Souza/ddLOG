@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface PinLoginProps {
@@ -17,6 +17,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({
   error 
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   
   const {
     register,
@@ -27,8 +28,28 @@ export const PinLogin: React.FC<PinLoginProps> = ({
 
   const watchPin = watch('pin');
 
+  // Extract countdown from error message if present
+  useEffect(() => {
+    if (error && error.includes('Tente novamente em')) {
+      const match = error.match(/(\d+) segundos/);
+      if (match) {
+        setCountdown(parseInt(match[1], 10));
+      }
+    }
+  }, [error]);
+
+  // Update countdown timer
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown(prev => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [countdown]);
+
   const onFormSubmit = async (data: FormData) => {
-    if (isSubmitting) return;
+    if (isSubmitting || countdown > 0) return;
     
     setIsSubmitting(true);
     
@@ -64,12 +85,15 @@ export const PinLogin: React.FC<PinLoginProps> = ({
           </div>
 
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className={`mb-4 px-4 py-3 rounded-lg ${countdown > 0 ? 'bg-orange-50 border border-orange-200 text-orange-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                {error}
+                {countdown > 0 
+                  ? `Acesso bloqueado. Aguarde ${countdown} segundo(s) para tentar novamente.`
+                  : error
+                }
               </div>
             </div>
           )}
@@ -94,7 +118,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({
                     message: 'PIN deve conter exatamente 6 dígitos'
                   }
                 })}
-                disabled={isSubmitting || loading}
+                disabled={isSubmitting || loading || countdown > 0}
                 autoFocus
               />
               {errors.pin && (
@@ -104,7 +128,7 @@ export const PinLogin: React.FC<PinLoginProps> = ({
 
             <button
               type="submit"
-              disabled={isSubmitting || loading || !watchPin || watchPin.length !== 6}
+              disabled={isSubmitting || loading || countdown > 0 || !watchPin || watchPin.length !== 6}
               className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
