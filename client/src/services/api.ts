@@ -99,4 +99,58 @@ export const taskApi = {
     const response = await api.get(`/tasks/heatmap?${params.toString()}`);
     return response.data;
   },
+
+  exportCSV: async (startDate?: string, endDate?: string): Promise<void> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    
+    const response = await api.get(`/tasks/export/csv?${params.toString()}`, {
+      responseType: 'blob'
+    });
+    
+    const blob = new Blob([response.data], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    const today = new Date().toISOString().split('T')[0];
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const start = startDate || sevenDaysAgo.toISOString().split('T')[0];
+    const end = endDate || today;
+    
+    link.href = url;
+    link.download = `tarefas_${start}_${end}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  },
+
+  exportPDF: async (startDate?: string, endDate?: string): Promise<void> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    
+    const response = await api.get(`/tasks/export/pdf?${params.toString()}`, {
+      responseType: 'blob'
+    });
+    
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    const today = new Date().toISOString().split('T')[0];
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const start = startDate || sevenDaysAgo.toISOString().split('T')[0];
+    const end = endDate || today;
+    
+    link.href = url;
+    link.download = `tarefas_${start}_${end}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  },
 };

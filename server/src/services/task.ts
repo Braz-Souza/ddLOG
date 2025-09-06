@@ -186,4 +186,19 @@ export class TaskService {
       };
     });
   }
+
+  static async getTasksInDateRange(userId: string, startDate: string, endDate: string): Promise<Task[]> {
+    const tasks = db.prepare(`
+      SELECT * FROM tasks 
+      WHERE user_id = ? 
+        AND date(created_at) >= ? 
+        AND date(created_at) <= ?
+      ORDER BY created_at DESC
+    `).all(userId, startDate, endDate) as Task[];
+    
+    return tasks.map(task => ({
+      ...task,
+      completed: Boolean(task.completed)
+    }));
+  }
 }

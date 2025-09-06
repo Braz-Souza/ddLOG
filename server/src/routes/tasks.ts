@@ -1,5 +1,6 @@
 import express from 'express';
 import { TaskService } from '../services/task.js';
+import { ExportService } from '../services/export.js';
 import { TEMP_USER_ID } from '../services/tempUser.js';
 // import { authenticateToken, type AuthRequest } from '../middleware/auth.js';
 
@@ -173,6 +174,51 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Failed to delete task'
+    });
+  }
+});
+
+router.get('/export/:format', async (req, res) => {
+  try {
+    const userId = TEMP_USER_ID;
+    const { format } = req.params;
+    const { startDate, endDate } = req.query;
+    
+    if (format !== 'csv' && format !== 'pdf') {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid format. Use csv or pdf'
+      });
+    }
+
+    const today = new Date();
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 7);
+    
+    const start = startDate as string || sevenDaysAgo.toISOString().split('T')[0];
+    const end = endDate as string || today.toISOString().split('T')[0];
+    
+    const tasks = await TaskService.getTasksInDateRange(userId, start, end);
+    
+    if (format === 'csv') {
+      const csvBuffer = await ExportService.generateCSV(tasks, start, end);
+      const filename = `tarefas_${start}_${end}.csv`;
+      
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(csvBuffer);
+    } else {
+      const pdfBuffer = await ExportService.generatePDF(tasks, start, end);
+      const filename = `tarefas_${start}_${end}.pdf`;
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(pdfBuffer);
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to export tasks'
     });
   }
 });

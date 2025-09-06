@@ -15,6 +15,7 @@ export const HomePage: React.FC = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [recentTasks, setRecentTasks] = useState<Task[]>([]);
   const [recentLoading, setRecentLoading] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
   
   const {
     tasks,
@@ -181,6 +182,30 @@ export const HomePage: React.FC = () => {
     }
   };
 
+  const handleExportCSV = async () => {
+    try {
+      setExportLoading(true);
+      await taskApi.exportCSV();
+      toast.success('Arquivo CSV exportado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao exportar arquivo CSV');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    try {
+      setExportLoading(true);
+      await taskApi.exportPDF();
+      toast.success('Arquivo PDF exportado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao exportar arquivo PDF');
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
   const today = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',
     year: 'numeric',
@@ -199,8 +224,39 @@ export const HomePage: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">ddLOG</h1>
-          <p className="text-gray-600">{todayFormatted}</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">ddLOG</h1>
+              <p className="text-gray-600">{todayFormatted}</p>
+            </div>
+            
+            {/* Export Buttons */}
+            <div className="flex gap-2">
+              <button
+                onClick={handleExportCSV}
+                disabled={exportLoading}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Exportar dados dos últimos 7 dias como CSV"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                CSV
+              </button>
+              
+              <button
+                onClick={handleExportPDF}
+                disabled={exportLoading}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Exportar dados dos últimos 7 dias como PDF"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                PDF
+              </button>
+            </div>
+          </div>
         </div>
 
         {error && (
