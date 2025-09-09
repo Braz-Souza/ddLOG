@@ -1,8 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { HomePage } from '../pages/HomePage';
-import { ProgressPage } from '../pages/ProgressPage';
-import { Navigation } from './Navigation';
 import { PinSetup } from './PinSetup';
 import { PinLogin } from './PinLogin';
 import { useAuth } from '../hooks/useAuth';
@@ -31,10 +29,8 @@ export const App: React.FC = () => {
 
   return (
     <>
-      <Navigation />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/progress" element={<ProgressPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

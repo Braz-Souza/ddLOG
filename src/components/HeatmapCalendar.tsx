@@ -96,12 +96,6 @@ export const HeatmapCalendar: React.FC<HeatmapCalendarProps> = ({
 
   return (
     <div className="relative">
-      <div className="mb-4">
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
-          Progresso em {year}
-        </h3>
-      </div>
-
       <div className="inline-block">
         <div className="mb-2 flex text-xs text-gray-500">
           <div className="w-8"></div>

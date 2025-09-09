@@ -6,10 +6,14 @@ import { TaskListWithDates } from '../components/TaskListWithDates';
 import { TaskDetailModal } from '../components/TaskDetailModal';
 import { TaskSummary } from '../components/TaskSummary';
 import { useTasks } from '../hooks/useTasks';
+import { useAuth } from '../hooks/useAuth'
 import { taskApi } from '../services/api';
 import type { TaskCreateRequest, Task, TaskUpdateRequest } from '../types';
+import { Heatmap } from '../components/Heatmap';
 
 export const HomePage: React.FC = () => {
+  const { logout } = useAuth();
+
   const [showForm, setShowForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -255,6 +259,17 @@ export const HomePage: React.FC = () => {
                 </svg>
                 PDF
               </button>
+
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-md transition-colors"
+                title="Sair do sistema"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Sair
+              </button>
             </div>
           </div>
         </div>
@@ -269,6 +284,10 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
         )}
+        
+        <div className='mb-4'>
+          <Heatmap />
+        </div>
 
         <div className="space-y-6">
           {!showForm ? (

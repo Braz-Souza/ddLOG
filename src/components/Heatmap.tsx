@@ -37,6 +37,23 @@ export const Heatmap: React.FC = () => {
     }
   };
 
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i);
+
+  console.log(yearOptions);
+
+  const goNextYear = () => {
+    if (selectedYear < currentYear) {
+      setSelectedYear(selectedYear + 1);
+    }
+  }
+
+  const goPrevYear = () => {
+    if (selectedYear > currentYear - 4) {
+      setSelectedYear(selectedYear - 1);
+    }
+  }
+
   return (
     <div className="card">
       {loading ? (
@@ -47,7 +64,18 @@ export const Heatmap: React.FC = () => {
           </div>
         </div>
       ) : !error ? (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-hidden">
+          <div className="flex justify-between mb-4">
+          <button onClick={goPrevYear}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <h3 className="text-lg font-medium text-gray-900">
+            Progresso em {selectedYear}
+          </h3>
+          <button onClick={goNextYear}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          </div>
           <HeatmapCalendar data={heatmapData} year={selectedYear} />
         </div>
       ) : (
