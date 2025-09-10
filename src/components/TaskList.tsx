@@ -144,25 +144,6 @@ export const TaskList: React.FC<TaskListProps> = ({
           </>
         )}
       </div>
-
-      {taskStats.total > 0 && (
-        <div className="mt-6 pt-4 border-t border-gray-200">
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-semibold text-gray-900">{taskStats.total}</div>
-              <div className="text-sm text-gray-600">Total</div>
-            </div>
-            <div>
-              <div className="text-2xl font-semibold text-orange-600">{taskStats.pending}</div>
-              <div className="text-sm text-gray-600">Pendentes</div>
-            </div>
-            <div>
-              <div className="text-2xl font-semibold text-green-600">{taskStats.completed}</div>
-              <div className="text-sm text-gray-600">Concluídas</div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

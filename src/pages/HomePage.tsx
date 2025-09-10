@@ -4,7 +4,6 @@ import { TaskForm } from '../components/TaskForm';
 import { TaskList } from '../components/TaskList';
 import { TaskListWithDates } from '../components/TaskListWithDates';
 import { TaskDetailModal } from '../components/TaskDetailModal';
-import { TaskSummary } from '../components/TaskSummary';
 import { useTasks } from '../hooks/useTasks';
 import { useAuth } from '../hooks/useAuth'
 import { taskApi } from '../services/api';
@@ -330,8 +329,6 @@ export const HomePage: React.FC = () => {
             />
           )}
 
-          <TaskSummary tasks={sortedTodayTasks} />
-
           <TaskList
             tasks={sortedTodayTasks}
             onToggleTask={handleToggleTask}
@@ -359,17 +356,6 @@ export const HomePage: React.FC = () => {
             </div>
           )}
         </div>
-
-        {tasks.length > 0 && (
-          <div className="mt-8 text-center">
-            <div className="inline-flex items-center gap-2 text-sm text-gray-500">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              As tarefas são salvas automaticamente
-            </div>
-          </div>
-        )}
 
         {/* Floating Action Button for mobile */}
         <button
