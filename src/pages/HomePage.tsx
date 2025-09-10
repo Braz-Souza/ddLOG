@@ -186,6 +186,25 @@ export const HomePage: React.FC = () => {
     }
   };
 
+  const handleDeleteRecentTask = async (id: string) => {
+    // Don't try to delete date markers
+    if (id.startsWith('date-marker-')) {
+      return;
+    }
+
+    try {
+      const response = await taskApi.delete(id);
+      if (response.success) {
+        setRecentTasks(prev => prev.filter(task => task.id !== id));
+        toast.success('Tarefa deletada com sucesso!');
+      } else {
+        toast.error(response.error || 'Erro ao deletar tarefa');
+      }
+    } catch (error) {
+      toast.error('Erro ao deletar tarefa');
+    }
+  };
+
   const handleExportCSV = async () => {
     try {
       setExportLoading(true);
@@ -331,7 +350,7 @@ export const HomePage: React.FC = () => {
                 tasks={recentTasks}
                 onToggleTask={handleToggleRecentTask}
                 onEditTask={handleEditTask}
-                onDeleteTask={() => Promise.resolve()}
+                onDeleteTask={handleDeleteRecentTask}
                 onViewDetails={handleViewTaskDetails}
                 loading={recentLoading}
                 title="Últimas Concluídas (7 dias anteriores)"
