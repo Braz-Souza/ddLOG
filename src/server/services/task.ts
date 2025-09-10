@@ -1,6 +1,35 @@
 import db from '../database/connection.js';
 import type { Task, TaskCreateRequest, TaskUpdateRequest, HeatmapData } from '../../types';
 
+// Database raw task type (snake_case)
+interface DbTask {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  reminder_time?: string;
+  category?: string;
+  completed: number;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string;
+}
+
+// Helper function to convert database task to API task
+function dbTaskToTask(dbTask: DbTask): Task {
+  return {
+    id: dbTask.id,
+    name: dbTask.name,
+    description: dbTask.description,
+    completed: Boolean(dbTask.completed),
+    reminderTime: dbTask.reminder_time,
+    category: dbTask.category,
+    createdAt: dbTask.created_at,
+    updatedAt: dbTask.updated_at,
+    completedAt: dbTask.completed_at
+  };
+}
+
 export class TaskService {
   static async createTask(userId: string, taskData: TaskCreateRequest): Promise<Task> {
     const { name, description, reminderTime, category } = taskData;
@@ -21,12 +50,9 @@ export class TaskService {
       INSERT INTO tasks (user_id, name, description, reminder_time, category) 
       VALUES (?, ?, ?, ?, ?) 
       RETURNING *
-    `).get(userId, name.trim(), description?.trim() || null, reminderTime || null, category?.trim() || null) as Task;
+    `).get(userId, name.trim(), description?.trim() || null, reminderTime || null, category?.trim() || null) as DbTask;
 
-    return {
-      ...result,
-      completed: Boolean(result.completed)
-    };
+    return dbTaskToTask(result);
   }
 
   static async getTasks(userId: string, date?: string): Promise<Task[]> {
@@ -43,26 +69,20 @@ export class TaskService {
 
     query += ` ORDER BY created_at DESC`;
 
-    const tasks = db.prepare(query).all(...params) as Task[];
+    const tasks = db.prepare(query).all(...params) as DbTask[];
     
-    return tasks.map(task => ({
-      ...task,
-      completed: Boolean(task.completed)
-    }));
+    return tasks.map(dbTaskToTask);
   }
 
   static async getTaskById(userId: string, taskId: string): Promise<Task | null> {
     const task = db.prepare(`
       SELECT * FROM tasks 
       WHERE id = ? AND user_id = ?
-    `).get(taskId, userId) as Task | undefined;
+    `).get(taskId, userId) as DbTask | undefined;
 
     if (!task) return null;
 
-    return {
-      ...task,
-      completed: Boolean(task.completed)
-    };
+    return dbTaskToTask(task);
   }
 
   static async updateTask(userId: string, taskId: string, updates: TaskUpdateRequest): Promise<Task> {
@@ -125,12 +145,9 @@ export class TaskService {
       SET ${updateFields.join(', ')} 
       WHERE id = ? AND user_id = ? 
       RETURNING *
-    `).get(...values) as Task;
+    `).get(...values) as DbTask;
 
-    return {
-      ...updatedTask,
-      completed: Boolean(updatedTask.completed)
-    };
+    return dbTaskToTask(updatedTask);
   }
 
   static async deleteTask(userId: string, taskId: string): Promise<boolean> {
@@ -194,11 +211,8 @@ export class TaskService {
         AND date(created_at) >= ? 
         AND date(created_at) <= ?
       ORDER BY created_at DESC
-    `).all(userId, startDate, endDate) as Task[];
+    `).all(userId, startDate, endDate) as DbTask[];
     
-    return tasks.map(task => ({
-      ...task,
-      completed: Boolean(task.completed)
-    }));
+    return tasks.map(dbTaskToTask);
   }
 }
