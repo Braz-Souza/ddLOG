@@ -37,39 +37,9 @@ export const HomePage: React.FC = () => {
       const tasksByDate: { [key: string]: Task[] } = {};
       const today = new Date();
       
-      for (let i = 1; i <= 7; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
-        
-        const response = await taskApi.getAll(dateStr);
-        if (response.success && response.data && response.data.length > 0) {
-          tasksByDate[dateStr] = response.data;
-        }
-      }
+      const response = await taskApi.getAll();
       
-      // Convert to flat array with date markers
-      const flatTasks: Task[] = [];
-      const sortedDates = Object.keys(tasksByDate).sort((a, b) => b.localeCompare(a)); // Most recent first
-      
-      sortedDates.forEach(dateStr => {
-        const tasks = tasksByDate[dateStr];
-        // Add a date marker task
-        const dateMarker = {
-          id: `date-marker-${dateStr}`,
-          name: dateStr,
-          description: '',
-          completed: false,
-          createdAt: dateStr,
-          updatedAt: dateStr,
-          isDateMarker: true
-        } as Task & { isDateMarker: boolean };
-
-        flatTasks.push(dateMarker);
-        flatTasks.push(...tasks);
-      });
-      
-      setRecentTasks(flatTasks);
+      setRecentTasks(response.data || []);
     } catch (error) {
       console.error('Error fetching recent tasks:', error);
     } finally {
@@ -350,8 +320,8 @@ export const HomePage: React.FC = () => {
                 onDeleteTask={handleDeleteRecentTask}
                 onViewDetails={handleViewTaskDetails}
                 loading={recentLoading}
-                title="Últimas Concluídas (7 dias anteriores)"
-                emptyMessage="Nenhuma tarefa concluída nos últimos 7 dias"
+                title="Tarefas anteriores"
+                emptyMessage="Nenhuma tarefa encontrada"
               />
             </div>
           )}
