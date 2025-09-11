@@ -55,3 +55,4 @@ temp/
 # Other
 *.tgz
 *.tar.gz
+src/data/ddlog.db
