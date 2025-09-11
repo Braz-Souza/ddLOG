@@ -1,0 +1,9 @@
+services:
+  ddlog:
+    build: .
+    container_name: ddlog 
+    restart: unless-stopped
+    ports:
+      - ${DDLOG_PORT:-3000}:3000
+    volumes:
+      - ${DDLOG_DATA_PATH:-./data}:/app/data
