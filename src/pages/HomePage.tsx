@@ -7,7 +7,7 @@ import { TaskDetailModal } from '../components/TaskDetailModal';
 import { useTasks } from '../hooks/useTasks';
 import { useAuth } from '../hooks/useAuth'
 import { taskApi } from '../services/api';
-import type { TaskCreateRequest, Task, TaskUpdateRequest } from '../types';
+import type { TaskCreateRequest, Task, TaskUpdateRequest, TaskWithDateMarker } from '../types';
 import { Heatmap } from '../components/Heatmap';
 
 export const HomePage: React.FC = () => {
@@ -16,7 +16,7 @@ export const HomePage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [recentTasks, setRecentTasks] = useState<Task[]>([]);
+  const [recentTasks, setRecentTasks] = useState<TaskWithDateMarker[]>([]);
   const [recentLoading, setRecentLoading] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   
@@ -34,12 +34,60 @@ export const HomePage: React.FC = () => {
     try {
       setRecentLoading(true);
       
-      const tasksByDate: { [key: string]: Task[] } = {};
-      const today = new Date();
-      
       const response = await taskApi.getAll();
+      const allTasks = response.data || [];
       
-      setRecentTasks(response.data || []);
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+      
+      // Filter out today's tasks and group remaining tasks by date
+      const tasksByDate: { [key: string]: Task[] } = {};
+      
+      allTasks.forEach(task => {
+        const taskDate = new Date(task.createdAt).toISOString().split('T')[0];
+        
+        // Skip today's tasks
+        if (taskDate === todayStr) {
+          return;
+        }
+        
+        if (!tasksByDate[taskDate]) {
+          tasksByDate[taskDate] = [];
+        }
+        tasksByDate[taskDate].push(task);
+      });
+      
+      // Convert to array with date markers
+      const tasksWithMarkers: TaskWithDateMarker[] = [];
+      
+      // Sort dates in descending order (most recent first)
+      const sortedDates = Object.keys(tasksByDate).sort((a, b) => b.localeCompare(a));
+      
+      sortedDates.forEach(date => {
+        // Add date marker
+        tasksWithMarkers.push({
+          id: `date-marker-${date}`,
+          name: date,
+          description: '',
+          completed: false,
+          createdAt: date,
+          updatedAt: date,
+          isDateMarker: true
+        });
+        
+        // Sort tasks within the date by creation time (newest first)
+        const sortedTasks = tasksByDate[date].sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        
+        // Add tasks for this date
+        tasksWithMarkers.push(...sortedTasks);
+      });
+      
+      console.log("Tasks with markers")
+      console.log(tasksWithMarkers)
+      setRecentTasks(tasksWithMarkers);
     } catch (error) {
       console.error('Error fetching recent tasks:', error);
     } finally {

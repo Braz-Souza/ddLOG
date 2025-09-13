@@ -1,9 +1,9 @@
 import React from 'react';
 import { TaskItem } from './TaskItem';
-import type { Task } from '../types';
+import type { Task, TaskWithDateMarker } from '../types';
 
 interface TaskListWithDatesProps {
-  tasks: Task[];
+  tasks: TaskWithDateMarker[];
   onToggleTask: (id: string, completed: boolean) => Promise<void>;
   onEditTask?: (task: Task) => void;
   onDeleteTask?: (id: string) => Promise<void>;
@@ -11,10 +11,6 @@ interface TaskListWithDatesProps {
   loading?: boolean;
   emptyMessage?: string;
   title?: string;
-}
-
-interface TaskWithDateMarker extends Task {
-  isDateMarker?: boolean;
 }
 
 export const TaskListWithDates: React.FC<TaskListWithDatesProps> = ({

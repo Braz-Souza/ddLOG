@@ -10,6 +10,10 @@ export interface Task {
   completedAt?: string;
 }
 
+export interface TaskWithDateMarker extends Task {
+  isDateMarker?: boolean;
+}
+
 export interface User {
   id: string;
   pinHash: string;
