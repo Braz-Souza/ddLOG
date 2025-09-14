@@ -285,7 +285,7 @@ export const HomePage: React.FC = () => {
           </div>
         )}
         
-        <div className='mb-4'>
+        <div className='hidden mb-4 md:flex'>
           <Heatmap />
         </div>
 
