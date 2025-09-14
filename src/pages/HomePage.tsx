@@ -262,7 +262,7 @@ export const HomePage: React.FC = () => {
             <div className="flex gap-2">
               <button
                 onClick={logout}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-md transition-colors"
+                className="btn btn-soft hover:btn-primary"
                 title="Sair do sistema"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,7 +295,8 @@ export const HomePage: React.FC = () => {
               <button
                 onClick={() => setShowForm(true)}
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-primary-500 hover:text-primary-600 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                //className="w-full flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-primary-500 hover:text-primary-600 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                className="btn btn-dash btn-primary p-6"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -367,12 +368,12 @@ export const HomePage: React.FC = () => {
           loading={loading}
         />
 
-        <div className="mt-4 card p-2 flex justify-center gap-4 w-fit m-auto">
+        <div className="mt-4 card flex flex-row justify-center gap-4 w-fit m-auto">
           <button
             onClick={handleExportCSV}
             disabled={exportLoading}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            title="Exportar dados dos últimos 7 dias como CSV"
+            className="btn btn-outline btn-primary"
+            title="Exportar dados como CSV"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -383,8 +384,8 @@ export const HomePage: React.FC = () => {
           <button
             onClick={handleExportPDF}
             disabled={exportLoading}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            title="Exportar dados dos últimos 7 dias como PDF"
+            className="btn btn-outline btn-primary"
+            title="Exportar dados como PDF"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

@@ -141,7 +141,7 @@ export const PinSetup: React.FC<PinSetupProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting || loading || !watchPin || watchPin.length !== 6}
-                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="btn btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
