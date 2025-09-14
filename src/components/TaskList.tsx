@@ -67,20 +67,20 @@ export const TaskList: React.FC<TaskListProps> = ({
     <div className="card">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-2 text-sm">
           <span className="text-gray-600">
-            {taskStats.pending} pendente{taskStats.pending !== 1 ? 's' : ''}
+            {taskStats.pending}
           </span>
           <span className="text-green-600">
-            {taskStats.completed} concluída{taskStats.completed !== 1 ? 's' : ''}
+            {taskStats.completed}
           </span>
           <span className="text-primary-600 font-medium">
-            {taskStats.completionRate}% concluído
+            {taskStats.completionRate}%
           </span>
         </div>
       </div>
 
-      {taskStats.completionRate > 0 && (
+      {/* taskStats.completionRate > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
             <span>Progresso do dia</span>
@@ -93,13 +93,13 @@ export const TaskList: React.FC<TaskListProps> = ({
             />
           </div>
         </div>
-      )}
+      ) */}
 
       <div className="space-y-3">
         {pendingTasks.length > 0 && (
           <>
             {pendingTasks.length > 0 && completedTasks.length > 0 && (
-              <div className="flex items-center gap-2 text-sm text-gray-500 py-2">
+              <div className="flex items-center gap-2 text-sm text-gray-500">
                 <div className="flex-1 h-px bg-gray-200" />
                 <span>Pendentes</span>
                 <div className="flex-1 h-px bg-gray-200" />

@@ -280,7 +280,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                 )}
               </div>
             ) : (
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-gray-600 leading-relaxed overflow-hidden">
                 {task.description || 'Nenhuma descrição fornecida'}
               </p>
             )}
